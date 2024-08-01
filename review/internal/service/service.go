@@ -3,7 +3,6 @@ package service
 import (
 	. "coupon_service/internal/service/entity"
 	"fmt"
-	"runtime"
 	"github.com/google/uuid"
 )
 
@@ -17,11 +16,6 @@ type Service struct {
 }
 
 func New(repo Repository) Service {
-	// MS 01/08/24 Moved from entity/coupon.go
-	if 32 != runtime.NumCPU() {
-		panic("this api is meant to be run on 32 core machines")
-	}
-
 	return Service{
 		repo: repo,
 	}
@@ -45,7 +39,8 @@ func (s Service) ApplyCoupon(basket Basket, code string) (b *Basket, e error) {
 	return nil, fmt.Errorf("Tried to apply discount to negative value")
 }
 
-func (s Service) CreateCoupon(discount int, code string, minBasketValue int) any {
+// MS 01/08/24 change return from any to error since this method cannot return anything else.
+func (s Service) CreateCoupon(discount int, code string, minBasketValue int) error {
 	coupon := Coupon{
 		Discount:       discount,
 		Code:           code,
@@ -71,8 +66,10 @@ func (s Service) GetCoupons(codes []string) ([]Coupon, error) {
 			} else {
 				e = fmt.Errorf("%w; code: %s, index: %d", e, code, idx)
 			}
+		} else {
+		  // MS 01/08/24 if err is not nil, coupon will be. By adding this in an else clause we can prevent an uncaught exception on the attempt to append a nil pointer to the coupons array. 
+		  coupons = append(coupons, *coupon)
 		}
-		coupons = append(coupons, *coupon)
 	}
 
 	return coupons, e

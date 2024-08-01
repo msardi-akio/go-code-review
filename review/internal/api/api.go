@@ -7,13 +7,14 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"runtime"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Service interface {
 	ApplyCoupon(entity.Basket, string) (*entity.Basket, error)
-	CreateCoupon(int, string, int) any
+	CreateCoupon(int, string, int) error
 	GetCoupons([]string) ([]entity.Coupon, error)
 }
 
@@ -30,6 +31,11 @@ type API struct {
 }
 
 func New[T Service](cfg Config, svc T) API {
+	// MS 01/08/24 Moved from entity/coupon.go
+	if 32 != runtime.NumCPU() {
+		panic("this api is meant to be run on 32 core machines")
+	}
+
 	gin.SetMode(gin.ReleaseMode)
 	r := new(gin.Engine)
 	r = gin.New()

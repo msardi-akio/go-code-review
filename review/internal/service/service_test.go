@@ -86,3 +86,34 @@ func TestService_CreateCoupon(t *testing.T) {
 		})
 	}
 }
+
+
+func TestService_GetCoupons(t *testing.T) {
+	type fields struct {
+		repo Repository
+	}
+	type args struct {
+		discount       int
+		code           string
+		minBasketValue int
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   any
+	}{
+		{"Apply 10%", fields{memdb.New()}, args{10, "Superdiscount", 55}, nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := Service{
+				repo: tt.fields.repo,
+			}
+
+			s.CreateCoupon(tt.args.discount, tt.args.code, tt.args.minBasketValue)
+			// MS 01/08/24 add retrieve of coupons to test behaviour in case of malformed coupons
+			s.GetCoupons([]string{tt.args.code})
+		})
+	}
+}
