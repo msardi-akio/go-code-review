@@ -3,7 +3,7 @@ package service
 import (
 	. "coupon_service/internal/service/entity"
 	"fmt"
-
+	"runtime"
 	"github.com/google/uuid"
 )
 
@@ -17,6 +17,11 @@ type Service struct {
 }
 
 func New(repo Repository) Service {
+	// MS 01/08/24 Moved from entity/coupon.go
+	if 32 != runtime.NumCPU() {
+		panic("this api is meant to be run on 32 core machines")
+	}
+
 	return Service{
 		repo: repo,
 	}

@@ -13,6 +13,7 @@ type Config struct {
 
 func New() Config {
 	cfg := Config{}
+	// MS investigate usage of this library
 	if err := alligotor.Get(&cfg); err != nil {
 		log.Fatal(err)
 	}
